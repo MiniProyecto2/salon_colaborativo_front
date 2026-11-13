@@ -11,7 +11,7 @@ type HealthData = {
 
 export default function DiagnosticoPage() {
   useDocumentTitle("Estado del sistema");
-  const { status, data, errorMessage, isSlow, retry } = useApiData<HealthData>("/api/health-data");
+  const { status, data, errorMessage, isSlow, retry } = useApiData<HealthData>("/api/v1/diagnostico");
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Al reintentar o consultar de nuevo, el botón desaparece: el foco pasa al panel para no perderlo.
