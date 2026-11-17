@@ -1,5 +1,6 @@
 import { DATOS_DEMO, esperar } from "./demo";
 import { mensajeApi } from "./errores";
+import { apiFetch } from "./api";
 
 export type EstadoSala = "en-vivo" | "en-pausa";
 
@@ -36,15 +37,28 @@ export const MATERIAS = [
   "Otra disciplina académica",
 ];
 
-export class SalasNoDisponibles extends Error {
-  constructor() {
-    super("Crear y administrar salas estará disponible muy pronto.");
-  }
-}
-
 /** Texto para mostrar al estudiante cuando falla una operación de salas. */
-export const mensajeSalas = (error: unknown): string =>
-  error instanceof SalasNoDisponibles ? error.message : mensajeApi(error);
+export const mensajeSalas = mensajeApi;
+
+type SalaApi = NuevaSala & { id: string; createdAt: string };
+
+function mostrarSala(sala: SalaApi): Sala {
+  return {
+    id: sala.id,
+    nombre: sala.nombre,
+    materia: sala.materia,
+    descripcion: sala.descripcion,
+    publica: sala.publica,
+    subtitulo: sala.publica ? "Cualquiera con código" : "Solo invitados",
+    estado: "en-pausa",
+    presentes: 0,
+    cupos: 8,
+    detalle: sala.publica ? { icono: "lock_open", texto: "Acceso abierto" } : { icono: "lock", texto: "Solo invitados" },
+    modo: null,
+    iniciales: [],
+    creada: `Creada el ${new Date(sala.createdAt).toLocaleDateString("es-CO")}`,
+  };
+}
 
 const EJEMPLO: Sala[] = [
   {
@@ -94,11 +108,12 @@ const EJEMPLO: Sala[] = [
   },
 ];
 
-// Almacén en memoria: simula la API mientras no exista el backend de salas.
+// Salas en memoria para el modo de demostración.
 let almacen: Sala[] = DATOS_DEMO ? EJEMPLO.map((s) => ({ ...s })) : [];
 
 export async function listarMisSalas(): Promise<Sala[]> {
-  await esperar(DATOS_DEMO ? 700 : 150);
+  if (!DATOS_DEMO) return (await apiFetch<SalaApi[]>("/rooms")).map(mostrarSala);
+  await esperar(700);
   return almacen.map((s) => ({ ...s }));
 }
 
@@ -111,7 +126,7 @@ function generarCodigo(nombre: string): string {
 }
 
 export async function crearSala(datos: NuevaSala, iniciales: string): Promise<Sala> {
-  if (!DATOS_DEMO) throw new SalasNoDisponibles();
+  if (!DATOS_DEMO) return mostrarSala(await apiFetch<SalaApi>("/rooms", { method: "POST", body: datos }));
   await esperar(900);
   const sala: Sala = {
     id: generarCodigo(datos.nombre),
@@ -133,13 +148,13 @@ export async function crearSala(datos: NuevaSala, iniciales: string): Promise<Sa
 }
 
 export async function renombrarSala(id: string, nombre: string): Promise<void> {
-  if (!DATOS_DEMO) throw new SalasNoDisponibles();
+  if (!DATOS_DEMO) return apiFetch<void>(`/rooms/${encodeURIComponent(id)}`, { method: "PATCH", body: { nombre } });
   await esperar(500);
   almacen = almacen.map((s) => (s.id === id ? { ...s, nombre } : s));
 }
 
 export async function eliminarSala(id: string): Promise<void> {
-  if (!DATOS_DEMO) throw new SalasNoDisponibles();
+  if (!DATOS_DEMO) return apiFetch<void>(`/rooms/${encodeURIComponent(id)}`, { method: "DELETE" });
   await esperar(600);
   almacen = almacen.filter((s) => s.id !== id);
 }

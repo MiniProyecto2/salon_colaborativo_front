@@ -1,9 +1,10 @@
 import { useRef, useState, type FormEvent } from "react";
+import { useAvisos } from "../../hooks/useAvisos";
 import { useSesion } from "../../hooks/useSesion";
 import { ApiError } from "../../lib/api";
 import { AVATARES, avatarDeFoto, urlAvatar } from "../../lib/avatares";
 import { mensajeApi } from "../../lib/errores";
-import { actualizarMiPerfil, type CambiosPerfil, type Perfil } from "../../lib/perfiles";
+import { actualizarMiCorreo, actualizarMiPerfil, type CambiosPerfil, type Perfil } from "../../lib/perfiles";
 import { MAX_BIO, nombreCompleto, validarBio, validarNombreYApellidos, validarUsuario } from "../../lib/validaciones";
 import Alert from "../ui/Alert";
 import AvatarPicker from "../ui/AvatarPicker";
@@ -15,16 +16,19 @@ type Props = { perfil: Perfil; onCancelar: () => void; onGuardado: () => void };
 
 /** Edición de nombre, usuario, biografía y avatar. Solo envía lo que cambió. */
 export default function FormularioPerfil({ perfil, onCancelar, onGuardado }: Props) {
-  const { guardarPerfil } = useSesion();
+  const { guardarPerfil, salir } = useSesion();
+  const { mostrar } = useAvisos();
   const [nombre, setNombre] = useState(perfil.displayName);
   const [usuario, setUsuario] = useState(perfil.username);
+  const [correo, setCorreo] = useState(perfil.email ?? "");
   const [bio, setBio] = useState(perfil.bio ?? "");
   const [avatar, setAvatar] = useState<string | null>(avatarDeFoto(perfil.photoURL)?.id ?? null);
-  const [errores, setErrores] = useState<{ nombre?: string; usuario?: string; bio?: string }>({});
+  const [errores, setErrores] = useState<{ nombre?: string; usuario?: string; correo?: string; bio?: string }>({});
   const [aviso, setAviso] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
   const nombreRef = useRef<HTMLInputElement>(null);
   const usuarioRef = useRef<HTMLInputElement>(null);
+  const correoRef = useRef<HTMLInputElement>(null);
   const bioRef = useRef<HTMLTextAreaElement>(null);
   const avisoRef = useRef<HTMLDivElement>(null);
 
@@ -50,21 +54,28 @@ export default function FormularioPerfil({ perfil, onCancelar, onGuardado }: Pro
     if (bio.trim() !== (perfil.bio ?? "")) cambios.bio = bio.trim();
     if (avatar && avatar !== avatarDeFoto(perfil.photoURL)?.id) cambios.photoURL = urlAvatar(avatar);
 
-    if (Object.keys(cambios).length === 0) {
-      onGuardado();
-      return;
-    }
-
     setGuardando(true);
     try {
-      guardarPerfil(await actualizarMiPerfil(cambios));
+      if (Object.keys(cambios).length > 0) guardarPerfil(await actualizarMiPerfil(cambios));
+      if (correo.trim().toLowerCase() !== (perfil.email ?? "").toLowerCase()) {
+        await actualizarMiCorreo(correo);
+        await salir("/iniciar-sesion");
+        mostrar("Correo actualizado. Inicia sesión con tu nuevo correo.", "exito");
+        return;
+      }
       onGuardado();
     } catch (error) {
       if (error instanceof ApiError && error.tipo === "http") {
         const delUsuario = error.detalles.find((d) => d.field === "username");
-        if (error.status === 409 || delUsuario) {
-          setErrores({ usuario: delUsuario?.message ?? "Ese nombre de usuario ya está en uso. Prueba con otro." });
+        if (delUsuario) {
+          setErrores({ usuario: delUsuario.message });
           usuarioRef.current?.focus();
+          return;
+        }
+        const delCorreo = error.detalles.find((d) => d.field === "email");
+        if (delCorreo || error.status === 403) {
+          setErrores({ correo: delCorreo?.message ?? error.message });
+          correoRef.current?.focus();
           return;
         }
       }
@@ -137,14 +148,19 @@ export default function FormularioPerfil({ perfil, onCancelar, onGuardado }: Pro
           error={errores.usuario}
         />
         <TextField
+          ref={correoRef}
           etiqueta="Correo"
           nombre="email"
           tipo="email"
-          requerido={false}
-          disabled
-          ayuda="El correo de tu cuenta no se puede cambiar desde aquí."
-          valor={perfil.email ?? ""}
-          onCambio={() => undefined}
+          autoComplete="email"
+          maxLength={254}
+          ayuda="Para cambiar el correo, tu sesión debe haberse iniciado hace menos de 10 minutos."
+          valor={correo}
+          onCambio={(valor) => {
+            setCorreo(valor);
+            setErrores((x) => ({ ...x, correo: undefined }));
+          }}
+          error={errores.correo}
         />
         <div className="md:col-span-2 flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">

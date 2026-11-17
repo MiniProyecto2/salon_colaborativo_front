@@ -34,5 +34,8 @@ export type CambiosPerfil = Partial<Pick<Perfil, "username" | "displayName" | "p
 export const actualizarMiPerfil = (cambios: CambiosPerfil) =>
   apiFetch<Perfil>("/users/me", { method: "PATCH", body: cambios });
 
+export const actualizarMiCorreo = (email: string) =>
+  apiFetch<Perfil>("/users/me/email", { method: "PATCH", body: { email } });
+
 /** Elimina el perfil y la cuenta de la persona con sesión (DELETE /users/me). */
 export const eliminarMiCuenta = () => apiFetch<void>("/users/me", { method: "DELETE" });
