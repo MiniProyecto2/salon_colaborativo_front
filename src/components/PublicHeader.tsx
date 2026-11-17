@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useSesion } from "../hooks/useSesion";
 import Icon from "./Icon";
 import Logo from "./Logo";
 import MobileDrawer from "./MobileDrawer";
@@ -10,6 +11,8 @@ const enlaceNav = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 export default function PublicHeader() {
+  const { fase } = useSesion();
+  const haySesion = fase === "listo";
   const [menuAbierto, setMenuAbierto] = useState(false);
   const botonMenuRef = useRef<HTMLButtonElement>(null);
   const cerrar = useCallback(() => setMenuAbierto(false), []);
@@ -34,18 +37,29 @@ export default function PublicHeader() {
 
         <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-space-sm">
           <NavLink to="/ayuda" className={enlaceNav}>Ayuda</NavLink>
-          <Link
-            to="/iniciar-sesion"
-            className="min-h-[44px] px-4 inline-flex items-center justify-center font-label text-sm text-on-surface bg-surface-container-lowest hover:bg-surface-container-low transition-colors rounded-lg shadow-sm border border-outline-variant/40"
-          >
-            Iniciar sesión
-          </Link>
-          <Link
-            to="/registro"
-            className="min-h-[44px] px-4 inline-flex items-center justify-center font-label text-sm text-on-primary bg-primary-container hover:bg-primary transition-colors rounded-lg shadow-sm"
-          >
-            Registrarse
-          </Link>
+          {haySesion ? (
+            <Link
+              to="/dashboard"
+              className="min-h-[44px] px-4 inline-flex items-center justify-center font-label text-sm text-on-primary bg-primary-container hover:bg-primary transition-colors rounded-lg shadow-sm"
+            >
+              Ir al Panel
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/iniciar-sesion"
+                className="min-h-[44px] px-4 inline-flex items-center justify-center font-label text-sm text-on-surface bg-surface-container-lowest hover:bg-surface-container-low transition-colors rounded-lg shadow-sm border border-outline-variant/40"
+              >
+                Iniciar sesión
+              </Link>
+              <Link
+                to="/registro"
+                className="min-h-[44px] px-4 inline-flex items-center justify-center font-label text-sm text-on-primary bg-primary-container hover:bg-primary transition-colors rounded-lg shadow-sm"
+              >
+                Registrarse
+              </Link>
+            </>
+          )}
         </nav>
       </div>
 

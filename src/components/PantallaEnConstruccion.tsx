@@ -5,7 +5,7 @@ import Icon from "./Icon";
 
 type Props = {
   titulo: string;
-  sprint: number;
+  sprint?: number;
   descripcion?: string;
   volverA?: { to: string; texto: string };
   children?: ReactNode;
@@ -30,7 +30,8 @@ export default function PantallaEnConstruccion({ titulo, sprint, descripcion, vo
         </div>
         <h1 className="font-headline text-2xl md:text-3xl font-bold text-on-background tracking-tight">{titulo}</h1>
         <p className="font-body text-sm md:text-base text-on-surface-variant leading-relaxed">
-          {descripcion ?? "Esta pantalla se implementa en un sprint posterior."} Se entrega en el Sprint {sprint}.
+          {descripcion ?? "Esta pantalla se implementa en un sprint posterior."}
+          {sprint ? ` Se entrega en el Sprint ${sprint}.` : ""}
         </p>
         {children}
       </div>

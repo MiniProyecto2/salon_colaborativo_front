@@ -1,4 +1,9 @@
-/** Sprint 0: aún no hay autenticación. En el Sprint 1 esto lee la sesión de Firebase Auth. */
+import { useContext } from "react";
+import { SesionContext } from "../context/auth-context";
+
+/** Estado de la sesión (Firebase Auth + perfil de la API). Requiere <AuthProvider>. */
 export function useSesion() {
-  return { haySesion: false };
+  const sesion = useContext(SesionContext);
+  if (!sesion) throw new Error("useSesion debe usarse dentro de <AuthProvider>");
+  return sesion;
 }

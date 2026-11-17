@@ -8,9 +8,12 @@ import BienvenidaPage from "./pages/BienvenidaPage";
 import DashboardPage from "./pages/DashboardPage";
 import DiagnosticoPage from "./pages/DiagnosticoPage";
 import IniciarSesionPage from "./pages/IniciarSesionPage";
+import MisSalasPage from "./pages/MisSalasPage";
 import NoEncontradaPage from "./pages/NoEncontradaPage";
 import NombreDeUsuarioPage from "./pages/NombreDeUsuarioPage";
 import PerfilPage from "./pages/PerfilPage";
+import PizarraPage from "./pages/PizarraPage";
+import RecursosPage from "./pages/RecursosPage";
 import RegistroManualPage from "./pages/RegistroManualPage";
 import RegistroPage from "./pages/RegistroPage";
 import SalaPage from "./pages/SalaPage";
@@ -31,10 +34,13 @@ export default function App() {
         <Route path="*" element={<NoEncontradaPage />} />
       </Route>
 
-      {/* Pantallas privadas (la protección real llega en el Sprint 1) */}
+      {/* Pantallas privadas: exigen sesión (ver GuardiaSesion) */}
       <Route element={<PrivateLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/perfil" element={<PerfilPage />} />
+        <Route path="/mis-salas" element={<MisSalasPage />} />
+        <Route path="/pizarra" element={<PizarraPage />} />
+        <Route path="/recursos" element={<RecursosPage />} />
       </Route>
 
       {/* Sala: encabezado propio, sin navegación general */}

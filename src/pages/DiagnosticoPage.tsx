@@ -1,9 +1,11 @@
 import { useRef } from "react";
 import Icon from "../components/Icon";
+import Button from "../components/ui/Button";
+import Spinner from "../components/ui/Spinner";
 import { useApiData } from "../hooks/useApiData";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
-/** Contrato provisional (pendiente de confirmar con el BE Lead): GET /api/health-data */
+/** Contrato de GET /api/v1/diagnostico (lee diagnostico/sistema en Firestore). */
 type HealthData = {
   message: string; // dato leído de Firestore
   updatedAt?: string; // ISO 8601, opcional
@@ -43,10 +45,7 @@ export default function DiagnosticoPage() {
         >
           {status === "loading" && (
             <div className="flex items-center gap-4 rounded-xl bg-surface-container-low p-4 md:p-6">
-              <span
-                aria-hidden="true"
-                className="h-8 w-8 shrink-0 animate-spin rounded-full border-4 border-primary-fixed-dim border-t-primary"
-              />
+              <Spinner />
               <div className="flex flex-col">
                 <p className="font-label text-base font-semibold text-on-surface">
                   {isSlow ? "Conectando con el servidor…" : "Cargando…"}
@@ -71,14 +70,9 @@ export default function DiagnosticoPage() {
                   <p className="font-body text-sm md:text-base text-on-error-container">{errorMessage}</p>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="inline-flex min-h-[44px] w-full md:w-auto items-center justify-center gap-2 self-start rounded-lg bg-error px-5 font-label text-sm font-semibold text-on-error hover:opacity-90"
-              >
-                <Icon name="refresh" className="text-[20px]" />
+              <Button icono="refresh" onClick={handleRetry} className="self-start">
                 Reintentar
-              </button>
+              </Button>
             </div>
           )}
 
@@ -106,14 +100,9 @@ export default function DiagnosticoPage() {
                   </div>
                 )}
               </dl>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="inline-flex min-h-[44px] w-full md:w-auto items-center justify-center gap-2 self-start rounded-lg border border-outline bg-surface-container-lowest px-5 font-label text-sm font-semibold text-primary hover:bg-surface-container-low"
-              >
-                <Icon name="refresh" className="text-[20px]" />
+              <Button variante="secondary" icono="refresh" onClick={handleRetry} className="self-start">
                 Volver a consultar
-              </button>
+              </Button>
             </div>
           )}
         </div>

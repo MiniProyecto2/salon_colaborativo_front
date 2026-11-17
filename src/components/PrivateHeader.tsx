@@ -1,18 +1,31 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useEnLinea } from "../hooks/useEnLinea";
+import { useSesion } from "../hooks/useSesion";
 import Icon from "./Icon";
-import Logo from "./Logo";
+import Avatar from "./ui/Avatar";
 
 const enlaceNav = ({ isActive }: { isActive: boolean }) =>
-  `min-h-[44px] px-3 inline-flex items-center font-label text-sm rounded-lg transition-colors ${
-    isActive ? "text-primary font-semibold" : "text-on-surface-variant hover:text-on-surface"
+  `min-h-[44px] px-3 inline-flex items-center rounded-lg font-label text-label-lg transition-colors ${
+    isActive ? "bg-primary-container text-on-primary" : "text-on-surface-variant hover:text-on-surface"
   }`;
 
 const itemMenu =
   "w-full min-h-[44px] px-4 flex items-center gap-3 text-left font-body text-sm text-on-surface hover:bg-surface-container";
 
-/** Encabezado de las pantallas privadas (Panel, Mi perfil). Sprint 0: datos de usuario de ejemplo. */
+const SUBTITULOS: Record<string, string> = {
+  "/dashboard": "Panel",
+  "/perfil": "Perfil",
+  "/mis-salas": "Mis salas",
+  "/pizarra": "Pizarra",
+  "/recursos": "Recursos",
+};
+
+/** Encabezado de las pantallas privadas: quién tiene la sesión, estado de conexión y cierre de sesión. */
 export default function PrivateHeader() {
+  const { perfil, salir } = useSesion();
+  const enLinea = useEnLinea();
+  const { pathname } = useLocation();
   const [abierto, setAbierto] = useState(false);
   const contenedorRef = useRef<HTMLDivElement>(null);
   const botonRef = useRef<HTMLButtonElement>(null);
@@ -36,14 +49,47 @@ export default function PrivateHeader() {
     };
   }, [abierto]);
 
-  return (
-    <header className="sticky top-0 z-40 w-full bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-      <div className="h-16 md:h-20 max-w-[1200px] mx-auto px-margin-mobile md:px-margin flex items-center justify-between gap-space-md">
-        <Logo to="/dashboard" />
+  const primerNombre = perfil?.displayName.split(" ")[0] ?? "";
 
-        <nav aria-label="Navegación principal" className="flex items-center gap-space-xs">
-          <NavLink to="/dashboard" className={enlaceNav}>Panel</NavLink>
-          <NavLink to="/ayuda" className={enlaceNav}>Ayuda</NavLink>
+  return (
+    <header className="sticky top-0 z-40 w-full bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+      <div className="h-16 px-margin-mobile lg:px-space-xl flex items-center justify-between gap-space-md">
+        {/* Móvil: marca y sección actual */}
+        <Link to="/dashboard" className="lg:hidden flex items-center gap-3 min-w-0 rounded-lg">
+          <span aria-hidden="true" className="w-10 h-10 shrink-0 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+            <Icon name="school" className="text-[24px]" />
+          </span>
+          <span className="flex flex-col min-w-0">
+            <span className="font-headline text-headline-sm text-on-surface truncate leading-tight">Salón de Estudio</span>
+            <span className="font-label text-label-sm text-on-surface-variant truncate">{SUBTITULOS[pathname] ?? "Panel"}</span>
+          </span>
+        </Link>
+
+        {/* Escritorio: título y enlaces principales */}
+        <div className="hidden lg:flex items-center gap-space-xl">
+          <span className="font-headline text-headline-sm text-on-surface">Salón de Estudio</span>
+          <nav aria-label="Navegación principal" className="flex items-center gap-space-xs">
+            <NavLink to="/dashboard" className={enlaceNav}>Panel</NavLink>
+            <NavLink to="/ayuda" className={enlaceNav}>Ayuda</NavLink>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-space-xs lg:gap-space-md shrink-0">
+          <span
+            role="status"
+            className="hidden sm:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-full"
+          >
+            <span aria-hidden="true" className={`w-2 h-2 rounded-full ${enLinea ? "bg-secondary" : "bg-error"}`} />
+            <span className="font-label text-label-sm text-on-surface-variant">{enLinea ? "Conectado" : "Sin conexión"}</span>
+          </span>
+
+          <Link
+            to="/ayuda"
+            aria-label="Ayuda y soporte"
+            className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface"
+          >
+            <Icon name="help" className="text-[24px]" />
+          </Link>
 
           <div ref={contenedorRef} className="relative">
             <button
@@ -53,12 +99,13 @@ export default function PrivateHeader() {
               aria-haspopup="menu"
               aria-label="Menú de usuario"
               onClick={() => setAbierto((v) => !v)}
-              className="min-h-[44px] pl-1 pr-3 inline-flex items-center gap-2 rounded-full hover:bg-surface-container"
+              className="min-h-[44px] pl-1 pr-1 lg:pr-3 inline-flex items-center gap-space-sm rounded-full hover:bg-surface-container"
             >
-              <span aria-hidden="true" className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
-                <Icon name="person" className="text-[18px]" />
+              <span className="hidden sm:block text-right pl-3">
+                <span className="block font-label text-label-lg text-on-surface leading-tight">{primerNombre}</span>
+                <span className="block font-label text-label-sm text-on-surface-variant leading-tight">@{perfil?.username}</span>
               </span>
-              <span className="hidden sm:inline font-label text-sm text-on-surface">nombre_de_usuario</span>
+              <Avatar src={perfil?.photoURL} nombre={perfil?.displayName ?? ""} tamano="sm" />
             </button>
 
             {abierto && (
@@ -71,15 +118,22 @@ export default function PrivateHeader() {
                   <Icon name="account_circle" className="text-[20px] text-primary" />
                   Mi perfil
                 </Link>
-                {/* Sprint 1: aquí se cierra la sesión de Firebase */}
-                <Link role="menuitem" to="/iniciar-sesion" className={itemMenu} onClick={() => setAbierto(false)}>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={itemMenu}
+                  onClick={() => {
+                    setAbierto(false);
+                    void salir(); // cierra la sesión y lleva a Bienvenida
+                  }}
+                >
                   <Icon name="logout" className="text-[20px] text-on-surface-variant" />
                   Cerrar sesión
-                </Link>
+                </button>
               </div>
             )}
           </div>
-        </nav>
+        </div>
       </div>
     </header>
   );

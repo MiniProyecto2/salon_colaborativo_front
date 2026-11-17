@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useSesion } from "../hooks/useSesion";
 import Icon from "./Icon";
 
 type Props = {
@@ -17,6 +18,8 @@ const FOCUSABLES = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-
 export default function MobileDrawer({ abierto, onCerrar, origenRef }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
+  const { fase } = useSesion();
+  const haySesion = fase === "listo";
 
   // Cierra el menú al cambiar de ruta
   useEffect(() => {
@@ -99,19 +102,31 @@ export default function MobileDrawer({ abierto, onCerrar, origenRef }: Props) {
         </div>
 
         <div className="flex flex-col gap-space-sm bg-surface-container-low p-space-md rounded-xl">
-          <Link
-            to="/registro"
-            className="w-full min-h-[48px] px-space-md rounded-lg bg-primary text-on-primary font-body font-semibold text-sm shadow-sm flex items-center justify-center gap-space-xs"
-          >
-            <span>Registrarse</span>
-            <Icon name="arrow_forward" className="text-[20px]" />
-          </Link>
-          <Link
-            to="/iniciar-sesion"
-            className="w-full min-h-[48px] px-space-md rounded-lg bg-surface-container-lowest text-primary font-body font-semibold text-sm shadow-sm flex items-center justify-center"
-          >
-            Iniciar sesión
-          </Link>
+          {haySesion ? (
+            <Link
+              to="/dashboard"
+              className="w-full min-h-[48px] px-space-md rounded-lg bg-primary text-on-primary font-body font-semibold text-sm shadow-sm flex items-center justify-center gap-space-xs"
+            >
+              <span>Ir al Panel</span>
+              <Icon name="arrow_forward" className="text-[20px]" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/registro"
+                className="w-full min-h-[48px] px-space-md rounded-lg bg-primary text-on-primary font-body font-semibold text-sm shadow-sm flex items-center justify-center gap-space-xs"
+              >
+                <span>Registrarse</span>
+                <Icon name="arrow_forward" className="text-[20px]" />
+              </Link>
+              <Link
+                to="/iniciar-sesion"
+                className="w-full min-h-[48px] px-space-md rounded-lg bg-surface-container-lowest text-primary font-body font-semibold text-sm shadow-sm flex items-center justify-center"
+              >
+                Iniciar sesión
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>

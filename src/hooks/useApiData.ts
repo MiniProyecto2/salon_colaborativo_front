@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { API_BASE } from "../lib/api";
 
 export type ApiStatus = "loading" | "error" | "success";
 
@@ -18,8 +19,6 @@ interface Options {
   slowAfterMs?: number;
 }
 
-const API_URL = import.meta.env.VITE_API_URL as string | undefined;
-
 export function useApiData<T>(path: string, options: Options = {}): UseApiDataResult<T> {
   const { timeoutMs = 45000, slowAfterMs = 2500 } = options;
   const [status, setStatus] = useState<ApiStatus>("loading");
@@ -29,22 +28,25 @@ export function useApiData<T>(path: string, options: Options = {}): UseApiDataRe
   const [attempt, setAttempt] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
 
-  const retry = useCallback(() => setAttempt((n) => n + 1), []);
+  // Al reintentar se vuelve al estado de carga (así el efecto no necesita cambiar el estado al empezar).
+  const retry = useCallback(() => {
+    setStatus("loading");
+    setErrorMessage(null);
+    setIsSlow(false);
+    setAttempt((n) => n + 1);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
     abortRef.current = controller;
-    setStatus("loading");
-    setErrorMessage(null);
-    setIsSlow(false);
 
     const slowTimer = window.setTimeout(() => setIsSlow(true), slowAfterMs);
     const timeoutTimer = window.setTimeout(() => controller.abort(), timeoutMs);
 
     (async () => {
       try {
-        if (!API_URL) throw new Error("config");
-        const res = await fetch(`${API_URL}${path}`, { signal: controller.signal });
+        if (!API_BASE) throw new Error("config");
+        const res = await fetch(`${API_BASE}${path}`, { signal: controller.signal });
         if (!res.ok) throw new Error(`http-${res.status}`);
         const json = (await res.json()) as T;
         setData(json);
@@ -54,7 +56,7 @@ export function useApiData<T>(path: string, options: Options = {}): UseApiDataRe
         const msg = (err as Error).message;
         setErrorMessage(
           msg === "config"
-            ? "Falta configurar la dirección de la API (VITE_API_URL)."
+            ? "Falta configurar la dirección del servidor (VITE_API_URL)."
             : (err as Error).name === "AbortError"
             ? "El servidor tardó demasiado en responder."
             : msg.startsWith("http-5")
