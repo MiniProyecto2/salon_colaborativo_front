@@ -1,3 +1,5 @@
+import { URL_TIEMPO_REAL } from "../lib/salas";
+import FormularioUnirse from "../components/salas/FormularioUnirse";
 import { Link } from "react-router-dom";
 import Icon from "../components/Icon";
 import EstadoVacio from "../components/ui/EstadoVacio";
@@ -76,6 +78,8 @@ export default function DashboardEscritorio({ estado, salas, limiteAlcanzado, on
         </button>
       </div>
 
+      {URL_TIEMPO_REAL && <FormularioUnirse />}
+
       {estado === "cargando" && <SalasCargandoEscritorio />}
 
       {estado === "error" && (
@@ -108,7 +112,7 @@ export default function DashboardEscritorio({ estado, salas, limiteAlcanzado, on
             <ul className="grid grid-cols-1 sm:grid-cols-3 gap-space-md mt-space-lg max-w-2xl w-full text-left">
               {[
                 { icono: "draw", color: "text-secondary", titulo: "Pizarra en vivo", texto: "Dibuja fórmulas y diagramas en tiempo real" },
-                { icono: "security", color: "text-primary-container", titulo: "Acceso protegido", texto: "Códigos únicos y sala de espera segura" },
+                { icono: "security", color: "text-primary-container", titulo: "Acceso protegido", texto: "ID único para cada sala" },
                 { icono: "volume_up", color: "text-secondary", titulo: "Audio optimizado", texto: "Baja latencia y supresión de eco" },
               ].map((f) => (
                 <li key={f.titulo} className="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-space-sm">
@@ -122,7 +126,7 @@ export default function DashboardEscritorio({ estado, salas, limiteAlcanzado, on
             </ul>
           }
         >
-          Crea un espacio virtual seguro con tu propio código. Podrás compartir pizarras sincronizadas, audio libre de ruido y resolver guías junto a tus compañeros.
+          Crea un espacio virtual seguro con su propio ID. Podrás compartir pizarras sincronizadas, audio libre de ruido y resolver guías junto a tus compañeros.
         </EstadoVacio>
       )}
 

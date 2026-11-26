@@ -89,7 +89,7 @@ function Contenido({ onCerrar, iniciales, onCreada, tituloId }: Omit<Props, "abi
           <Spinner />
           <div className="flex flex-col gap-1">
             <p className="font-headline text-headline-sm font-semibold text-on-surface">Creando tu sala…</p>
-            <p className="font-body text-body-sm text-on-surface-variant">Estamos generando un código único para compartir.</p>
+            <p className="font-body text-body-sm text-on-surface-variant">Estamos generando un ID único para compartir.</p>
           </div>
         </div>
       </>
@@ -129,13 +129,13 @@ function Contenido({ onCerrar, iniciales, onCreada, tituloId }: Omit<Props, "abi
           </span>
           <div className="flex flex-col gap-1 items-center">
             <p className="font-headline text-headline-sm font-semibold text-on-surface">¡Sala creada con éxito!</p>
-            <p className="font-body text-body-sm text-on-surface-variant">Comparte este código para que se unan:</p>
-            <div className="inline-flex items-center gap-2 bg-surface-container py-1.5 pl-4 pr-1 rounded-lg mt-1">
-              <code className="font-headline text-headline-sm font-bold text-primary tracking-wider">{creada.id}</code>
+            <p className="font-body text-body-sm text-on-surface-variant">Comparte este ID para que se unan:</p>
+            <div className="inline-flex max-w-full items-center gap-2 bg-surface-container py-1.5 pl-4 pr-1 rounded-lg mt-1">
+              <code className="font-headline text-headline-sm font-bold text-primary tracking-wider wrap-anywhere">{creada.id}</code>
               <button
                 type="button"
-                aria-label={`Copiar código ${creada.id}`}
-                onClick={() => void copiar(creada.id)}
+                aria-label={`Copiar ID ${creada.id}`}
+                onClick={() => void copiar(creada.id, "ID")}
                 className="w-11 h-11 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
               >
                 <Icon name="content_copy" className="text-[20px]" />
@@ -232,7 +232,7 @@ function Contenido({ onCerrar, iniciales, onCreada, tituloId }: Omit<Props, "abi
           <legend className="font-label text-sm font-semibold text-on-surface mb-1">Modalidad de la sala</legend>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { valor: true, titulo: "Pública", texto: "Cualquiera con código" },
+              { valor: true, titulo: "Pública", texto: "Cualquiera con el ID" },
               { valor: false, titulo: "Solo invitados", texto: "Requiere anfitrión" },
             ].map((o) => (
               <label

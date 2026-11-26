@@ -1,6 +1,8 @@
 import { DATOS_DEMO, esperar } from "./demo";
 import { mensajeApi } from "./errores";
-import { apiFetch } from "./api";
+import { apiFetch, ApiError } from "./api";
+
+export const URL_TIEMPO_REAL = (import.meta.env.VITE_REALTIME_URL as string | undefined)?.trim();
 
 export type EstadoSala = "en-vivo" | "en-pausa";
 
@@ -40,16 +42,16 @@ export const MATERIAS = [
 /** Texto para mostrar al estudiante cuando falla una operación de salas. */
 export const mensajeSalas = mensajeApi;
 
-type SalaApi = NuevaSala & { id: string; createdAt: string };
+export type SalaApi = NuevaSala & { id: string; createdAt: string };
 
-function mostrarSala(sala: SalaApi): Sala {
+export function mostrarSala(sala: SalaApi): Sala {
   return {
     id: sala.id,
     nombre: sala.nombre,
     materia: sala.materia,
     descripcion: sala.descripcion,
     publica: sala.publica,
-    subtitulo: sala.publica ? "Cualquiera con código" : "Solo invitados",
+    subtitulo: sala.publica ? "Cualquiera con el ID" : "Solo invitados",
     estado: "en-pausa",
     presentes: 0,
     cupos: 8,
@@ -133,7 +135,7 @@ export async function crearSala(datos: NuevaSala, iniciales: string): Promise<Sa
     nombre: datos.nombre,
     descripcion: datos.descripcion || "Sala de estudio colaborativo.",
     materia: datos.materia,
-    subtitulo: datos.publica ? "Cualquiera con código" : "Solo invitados",
+    subtitulo: datos.publica ? "Cualquiera con el ID" : "Solo invitados",
     estado: "en-pausa",
     presentes: 1,
     cupos: 8,
@@ -157,4 +159,13 @@ export async function eliminarSala(id: string): Promise<void> {
   if (!DATOS_DEMO) return apiFetch<void>(`/rooms/${encodeURIComponent(id)}`, { method: "DELETE" });
   await esperar(600);
   almacen = almacen.filter((s) => s.id !== id);
+}
+
+export async function consultarSala(id: string): Promise<void> {
+  if (!DATOS_DEMO) {
+    await apiFetch<SalaApi>(`/rooms/${encodeURIComponent(id)}`);
+    return;
+  }
+  await esperar(500);
+  if (!almacen.some((sala) => sala.id === id)) throw new ApiError("http", 404);
 }

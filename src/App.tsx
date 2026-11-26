@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import PrivateLayout from "./layouts/PrivateLayout";
 import PublicLayout from "./layouts/PublicLayout";
@@ -16,7 +17,9 @@ import PizarraPage from "./pages/PizarraPage";
 import RecursosPage from "./pages/RecursosPage";
 import RegistroManualPage from "./pages/RegistroManualPage";
 import RegistroPage from "./pages/RegistroPage";
-import SalaPage from "./pages/SalaPage";
+import Spinner from "./components/ui/Spinner";
+
+const SalaPage = lazy(() => import("./pages/SalaPage"));
 
 export default function App() {
   return (
@@ -45,7 +48,7 @@ export default function App() {
 
       {/* Sala: encabezado propio, sin navegación general */}
       <Route element={<RoomLayout />}>
-        <Route path="/salas/:id" element={<SalaPage />} />
+        <Route path="/salas/:id" element={<Suspense fallback={<p role="status" className="p-4 flex items-center gap-2"><Spinner pequeno /> Abriendo la sala…</p>}><SalaPage /></Suspense>} />
       </Route>
     </Routes>
   );

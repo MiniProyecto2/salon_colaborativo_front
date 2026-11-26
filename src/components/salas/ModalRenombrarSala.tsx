@@ -42,7 +42,7 @@ function Contenido({ sala, onCerrar, onGuardada, tituloId }: { sala: Sala; onCer
   }
 
   return (
-    <>
+    <Modal abierto onCerrar={onCerrar} tituloId={tituloId} bloqueado={guardando}>
       <div className="bg-surface-container px-space-lg py-space-md flex items-center justify-between">
         <h2 id={tituloId} className="font-headline text-headline-sm font-semibold text-on-surface">
           Editar nombre de la sala
@@ -50,6 +50,7 @@ function Contenido({ sala, onCerrar, onGuardada, tituloId }: { sala: Sala; onCer
         <button
           type="button"
           aria-label="Cerrar"
+          disabled={guardando}
           onClick={onCerrar}
           className="w-11 h-11 -mr-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest flex items-center justify-center"
         >
@@ -74,7 +75,7 @@ function Contenido({ sala, onCerrar, onGuardada, tituloId }: { sala: Sala; onCer
           error={error}
         />
         <div className="flex items-center justify-end gap-space-sm">
-          <Button variante="secondary" onClick={onCerrar}>
+          <Button variante="secondary" disabled={guardando} onClick={onCerrar}>
             Cancelar
           </Button>
           <Button type="submit" cargando={guardando} textoCargando="Guardando…">
@@ -82,15 +83,11 @@ function Contenido({ sala, onCerrar, onGuardada, tituloId }: { sala: Sala; onCer
           </Button>
         </div>
       </form>
-    </>
+    </Modal>
   );
 }
 
 export default function ModalRenombrarSala({ sala, onCerrar, onGuardada }: Props) {
   const tituloId = useId();
-  return (
-    <Modal abierto={!!sala} onCerrar={onCerrar} tituloId={tituloId}>
-      {sala && <Contenido sala={sala} onCerrar={onCerrar} onGuardada={onGuardada} tituloId={tituloId} />}
-    </Modal>
-  );
+  return sala ? <Contenido key={sala.id} sala={sala} onCerrar={onCerrar} onGuardada={onGuardada} tituloId={tituloId} /> : null;
 }

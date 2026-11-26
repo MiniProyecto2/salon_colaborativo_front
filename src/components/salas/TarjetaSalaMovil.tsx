@@ -94,15 +94,15 @@ export default function TarjetaSalaMovil({ sala, indice, onRenombrar, onEliminar
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-space-xs pt-1">
+      <div className="flex items-center justify-between flex-wrap gap-space-xs pt-1">
         <button
           type="button"
-          onClick={() => void copiar(sala.id)}
-          aria-label={`Copiar código ${sala.id}`}
-          className="min-h-[44px] px-space-md rounded-lg bg-surface-container-low text-on-surface font-label text-label-md flex items-center gap-1.5 active:bg-surface-container-highest transition-colors"
+          onClick={() => void copiar(sala.id, "ID")}
+          aria-label={`Copiar ID ${sala.id}`}
+          className="min-h-[44px] px-space-md rounded-lg bg-surface-container-low text-on-surface font-label text-label-md flex items-center min-w-0 gap-1.5 active:bg-surface-container-highest transition-colors"
         >
           <Icon name="content_copy" className="text-[18px] text-primary" />
-          {sala.id}
+          <span className="wrap-anywhere">{sala.id}</span>
         </button>
         <Link
           to={`/salas/${sala.id}`}
