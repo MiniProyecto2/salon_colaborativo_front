@@ -54,7 +54,7 @@ function InteriorSala({ id }: { id: string }) {
   const cercaDelFinal = useRef(true);
   const alturaAnterior = useRef(0);
   const pendiente = useRef<{ id: string; texto: string } | null>(null);
-  useDocumentTitle(sala?.nombre ?? "Unirse a una sala");
+  useDocumentTitle(sala?.nombre ?? `Sala ${id}`);
 
   useEffect(() => {
     if (!URL_TIEMPO_REAL || !usuario) return;

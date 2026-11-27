@@ -149,6 +149,21 @@ export async function crearSala(datos: NuevaSala, iniciales: string): Promise<Sa
   return { ...sala };
 }
 
+export async function consultarSala(id: string): Promise<Sala> {
+  if (!DATOS_DEMO) {
+    return mostrarSala(await apiFetch<SalaApi>(`/rooms/${encodeURIComponent(id)}`));
+  }
+  await esperar(500);
+  const sala = almacen.find((s) => s.id === id);
+  if (!sala) throw new ApiError("http", 404);
+  return { ...sala };
+}
+
+export async function unirseSala(id: string): Promise<Sala> {
+  return consultarSala(id);
+}
+
+
 export async function renombrarSala(id: string, nombre: string): Promise<void> {
   if (!DATOS_DEMO) return apiFetch<void>(`/rooms/${encodeURIComponent(id)}`, { method: "PATCH", body: { nombre } });
   await esperar(500);
@@ -161,11 +176,4 @@ export async function eliminarSala(id: string): Promise<void> {
   almacen = almacen.filter((s) => s.id !== id);
 }
 
-export async function consultarSala(id: string): Promise<void> {
-  if (!DATOS_DEMO) {
-    await apiFetch<SalaApi>(`/rooms/${encodeURIComponent(id)}`);
-    return;
-  }
-  await esperar(500);
-  if (!almacen.some((sala) => sala.id === id)) throw new ApiError("http", 404);
-}
+
