@@ -1,5 +1,3 @@
-import { URL_TIEMPO_REAL } from "../lib/salas";
-import FormularioUnirse from "../components/salas/FormularioUnirse";
 import { Link } from "react-router-dom";
 import Icon from "../components/Icon";
 import EstadoVacio from "../components/ui/EstadoVacio";
