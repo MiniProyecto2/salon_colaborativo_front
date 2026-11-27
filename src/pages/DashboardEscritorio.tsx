@@ -39,7 +39,7 @@ const HERRAMIENTAS = [
   },
 ] as const;
 
-export default function DashboardEscritorio({ estado, salas, limiteAlcanzado, onCrear, onRenombrar, onEliminar, onReintentar }: PanelProps) {
+export default function DashboardEscritorio({ estado, salas, limiteAlcanzado, onCrear, onUnirse, onRenombrar, onEliminar, onReintentar }: PanelProps) {
   const conectados = salas.reduce((n, s) => n + s.presentes, 0);
   const enVivo = salas.filter((s) => s.estado === "en-vivo").length;
   const metricas = [
@@ -76,9 +76,18 @@ export default function DashboardEscritorio({ estado, salas, limiteAlcanzado, on
           <Icon name="add_circle" className="text-[20px]" />
           Crear nueva sala
         </button>
+
+        <button
+          type="button"
+          onClick={onUnirse}
+          className={`${botonPrimario} shrink-0`}
+        >
+          <Icon name="add_circle" className="text-[20px]" />
+          Unirte a sala existente
+        </button>
+
       </div>
 
-      {URL_TIEMPO_REAL && <FormularioUnirse />}
 
       {estado === "cargando" && <SalasCargandoEscritorio />}
 

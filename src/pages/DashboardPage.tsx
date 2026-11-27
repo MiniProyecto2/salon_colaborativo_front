@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Alert from "../components/ui/Alert";
 import ModalCrearSala from "../components/salas/ModalCrearSala";
+import ModalUnirseSala from "../components/salas/ModalUnirseSala";
 import ModalEliminarSala from "../components/salas/ModalEliminarSala";
 import ModalRenombrarSala from "../components/salas/ModalRenombrarSala";
 import { useAvisos } from "../hooks/useAvisos";
@@ -24,6 +25,7 @@ export default function DashboardPage() {
   const esMovil = useMediaQuery("(max-width: 1023px)"); // mismo corte que el menú lateral ("lg")
   const { estado, salas, reintentar, refrescar } = useMisSalas();
   const [creando, setCreando] = useState(false);
+  const [uniendose, setUniendose] = useState(false);
   const [renombrando, setRenombrando] = useState<Sala | null>(null);
   const [eliminando, setEliminando] = useState<Sala | null>(null);
 
@@ -38,6 +40,7 @@ export default function DashboardPage() {
     salas,
     limiteAlcanzado,
     onCrear: () => (limiteAlcanzado ? mostrar(`Alcanzaste el máximo de ${MAX_SALAS} salas. Elimina una para crear otra.`, "info") : setCreando(true)),
+    onUnirse: () => setUniendose(true),
     onRenombrar: setRenombrando,
     onEliminar: setEliminando,
     onReintentar: reintentar,
@@ -56,6 +59,7 @@ export default function DashboardPage() {
       {esMovil ? <DashboardMovil {...props} /> : <DashboardEscritorio {...props} />}
 
       <ModalCrearSala abierto={creando} onCerrar={() => setCreando(false)} iniciales={iniciales(perfil.displayName)} onCreada={() => void refrescar()} />
+      <ModalUnirseSala abierto={uniendose} onCerrar={() => setUniendose(false)} onUnida={() => void refrescar()} />
       <ModalRenombrarSala sala={renombrando} onCerrar={() => setRenombrando(null)} onGuardada={() => void refrescar()} />
       <ModalEliminarSala sala={eliminando} onCerrar={() => setEliminando(null)} onEliminada={() => void refrescar()} />
     </>

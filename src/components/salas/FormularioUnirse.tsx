@@ -16,7 +16,7 @@ export default function FormularioUnirse() {
     evento.preventDefault();
     if (cargando) return;
     const limpio = id.trim();
-    if (!limpio || !/^[A-Za-z0-9-]{3,64}$/.test(limpio)) {
+    if (!limpio || !/^[A-Za-z0-9-]{20}$/.test(limpio)) {
       setError("Escribe el ID que te compartió el anfitrión.");
       campo.current?.focus();
       return;
@@ -24,8 +24,8 @@ export default function FormularioUnirse() {
     setError(null);
     setCargando(true);
     try {
-      await consultarSala(limpio);
-      navegar(`/salas/${encodeURIComponent(limpio)}`);
+      const sala =await consultarSala(limpio);
+      navegar(`/salas/${encodeURIComponent(sala.id)}`);
     } catch (fallo) {
       setError(fallo instanceof ApiError && fallo.status === 404
         ? "No encontramos esa sala. Revisa el ID con el anfitrión."

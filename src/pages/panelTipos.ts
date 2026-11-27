@@ -10,6 +10,8 @@ export type PanelProps = {
   salas: Sala[];
   limiteAlcanzado: boolean;
   onCrear: () => void;
+  onUnirse: () => void;
+
   onRenombrar: (sala: Sala) => void;
   onEliminar: (sala: Sala) => void;
   onReintentar: () => void;
